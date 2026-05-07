@@ -244,7 +244,7 @@ describe("source packet capture", () => {
     rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it("should preserve the original artifact for URL captures", async () => {
+  it("should preserve the original artifact and render clickable Original links for URL captures", async () => {
     const paths = getVaultPaths(join(tempDir, "wiki-root"));
     ensureVaultStructure(paths);
 
@@ -262,11 +262,14 @@ describe("source packet capture", () => {
       },
     };
 
-    const result = await captureUrl(pi as never, paths, "https://example.com/article");
+    const url = "https://example.com/article";
+    const result = await captureUrl(pi as never, paths, url);
+    const sourcePage = readFile(result.sourcePagePath);
 
     expect(existsSync(join(result.packetPath, "original", "source.html"))).toBe(true);
     expect(readFile(join(result.packetPath, "original", "source.html"))).toBe(html);
     expect(readFile(join(result.packetPath, "extracted.md"))).toBe(html);
+    expect(sourcePage).toContain(`> _Original: [${url}](${url})_`);
   });
 });
 
